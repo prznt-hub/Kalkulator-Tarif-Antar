@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ojek Online Mandiri</title>
+    <style>
+        /* Styling agar tampilan persis seperti aplikasi HP (Mobile First) */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #e9ecef; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+        }
+        .app-container { 
+            background-color: #ffffff; 
+            width: 100%; 
+            max-width: 420px; 
+            min-height: 100vh; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+        }
+        .header { 
+            background-color: #ffcc00; /* Warna kuning ala Maxim */
+            padding: 20px; 
+            text-align: center; 
+            font-weight: 900; 
+            font-size: 22px; 
+            color: #111; 
+            letter-spacing: 1px;
+        }
+        .form-section {
+            padding: 20px;
+        }
+        .input-group { 
+            margin-bottom: 20px; 
+            position: relative;
+        }
+        .input-group label { 
+            font-size: 13px; 
+            color: #555; 
+            font-weight: bold;
+            margin-bottom: 8px; 
+            display: block; 
+        }
+        .input-group input { 
+            width: 100%; 
+            box-sizing: border-box;
+            border: 1px solid #ddd; 
+            border-radius: 8px;
+            font-size: 16px; 
+            padding: 12px; 
+            outline: none; 
+            transition: 0.3s;
+        }
+        .input-group input:focus {
+            border-color: #ffcc00;
+        }
+        /* Kotak Hasil Harga */
+        .price-container { 
+            padding: 25px 20px; 
+            background-color: #fafafa; 
+            text-align: center; 
+            border-top: 1px solid #eee;
+            margin-top: auto;
+        }
+        .price-label { font-size: 14px; color: #777; margin: 0; }
+        .price-value { font-size: 32px; font-weight: 900; color: #111; margin: 5px 0 15px 0; }
+        
+        /* Tombol Aksi */
+        .btn { 
+            border: none; 
+            padding: 15px; 
+            width: 100%; 
+            font-size: 16px; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .btn-calc { 
+            background-color: #111; 
+            color: #ffcc00; 
+            margin-bottom: 20px;
+        }
+        .btn-calc:active { background-color: #333; }
+        .btn-wa { 
+            background-color: #25D366; 
+            color: white; 
+            display: none; /* Disembunyikan sebelum jarak dihitung */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">OJEK MANDIRI</div>
+        
+        <div class="form-section">
+            <div class="input-group">
+                <label>Titik Jemput</label>
+                <input type="text" id="jemput" placeholder="Cth: Homestay / Terminal..." required>
+            </div>
+            
+            <div class="input-group">
+                <label>Titik Tujuan</label>
+                <input type="text" id="tujuan" placeholder="Cth: Kawah Sikidang / Candi Arjuna..." required>
+            </div>
+
+            <div class="input-group">
+                <label>Estimasi Jarak (Kilometer)</label>
+                <input type="number" id="jarak" placeholder="Masukkan angka jarak, cth: 5" required>
+            </div>
+
+            <button class="btn btn-calc" onclick="hitungTarif()">HITUNG TARIF</button>
+        </div>
+
+        <div class="price-container">
+            <p class="price-label">Estimasi Biaya Perjalanan</p>
+            <div class="price-value" id="tampilHarga">Rp 0</div>
+            
+            <button class="btn btn-wa" id="tombolWa" onclick="pesanWhatsApp()">PESAN SEKARANG VIA WA</button>
+        </div>
+    </div>
+
+    <script>
+        // --- PENGATURAN TARIF ---
+        const TARIF_DASAR = 5000;    // Biaya buka pintu / awal
+        const TARIF_PER_KM = 3000;   // Biaya per kilometer
+        const NOMOR_WA = "6281234567890"; // GANTI DENGAN NOMOR WA ANDA (Gunakan 62, tanpa angka 0 di depan)
+
+        let totalHargaFinal = 0;
+
+        // Fungsi Menghitung Tarif
+        function hitungTarif() {
+            const jemput = document.getElementById("jemput").value;
+            const tujuan = document.getElementById("tujuan").value;
+            const jarak = parseFloat(document.getElementById("jarak").value);
+
+            if (!jemput || !tujuan || !jarak) {
+                alert("Mohon lengkapi titik jemput, tujuan, dan jarak terlebih dahulu!");
+                return;
+            }
+
+            // Rumus perhitungan
+            totalHargaFinal = TARIF_DASAR + (jarak * TARIF_PER_KM);
+
+            // Format angka ke Rupiah
+            const formatRupiah = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(totalHargaFinal);
+
+            // Tampilkan ke layar
+            document.getElementById("tampilHarga").innerText = formatRupiah;
+            
+            // Munculkan tombol WhatsApp
+            document.getElementById("tombolWa").style.display = "block";
+        }
+
+        // Fungsi Mengirim Pesan ke WhatsApp
+        function pesanWhatsApp() {
+            const jemput = document.getElementById("jemput").value;
+            const tujuan = document.getElementById("tujuan").value;
+            const jarak = document.getElementById("jarak").value;
+
+            // Format teks yang akan masuk ke WA Anda
+            const pesan = `Halo, saya ingin pesan Ojek Mandiri.%0A%0A📍 *Titik Jemput:* ${jemput}%0A🏁 *Titik Tujuan:* ${tujuan}%0A🛣️ *Estimasi Jarak:* ${jarak} km%0A💰 *Total Harga:* Rp ${totalHargaFinal.toLocaleString('id-ID')}%0A%0AApakah bisa jemput sekarang?`;
+
+            // Buka link WhatsApp
+            const linkWa = `https://wa.me/${NOMOR_WA}?text=${pesan}`;
+            window.open(linkWa, "_blank");
+        }
+    </script>
+</body>
+</html>
