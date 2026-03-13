@@ -4,186 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ojek Online Mandiri</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; display: flex; justify-content: center; }
-        .app-container { background: #fff; width: 100%; max-width: 420px; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #ffcc00; padding: 20px; text-align: center; font-weight: bold; font-size: 20px; }
-        .form-section { padding: 20px; flex-grow: 1; }
-        .input-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .price-box { background: #fafafa; padding: 20px; text-align: center; border-top: 2px solid #ffcc00; }
-        .btn-wa { background: #25D366; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; display: none; margin-top: 10px; }
-        #map { height: 200px; margin-bottom: 15px; border-radius: 8px; display: none; }
-    </style>
-</head>
-<body>
-
-<div class="app-container">
-    <div class="header">OJEK MANDIRI</div>
-    <div class="form-section">
-        <div class="input-group">
-            <input type="text" id="start" placeholder="Titik Jemput (Contoh: Dieng)">
-        </div>
-        <div class="input-group">
-            <input type="text" id="end" placeholder="Titik Tujuan">
-        </div>
-        <button onclick="hitungJarak()" style="width:100%; padding:10px; background:#111; color:#fff; border-radius:8px; cursor:pointer;">CEK HARGA</button>
-        <p id="status" style="font-size:12px; color:gray; text-align:center;"></p>
-        <div id="map"></div>
-    </div>
-    <div class="price-box">
-        <div id="displayJarak" style="font-size:14px;">Jarak: 0 km</div>
-        <div id="displayHarga" style="font-size:28px; font-weight:bold;">Rp 0</div>
-        <button id="btnWa" class="btn-wa" onclick="kirimWa()">PESAN VIA WHATSAPP</button>
-    </div>
-</div>
-
-<script>
-    const TARIF_DASAR = 5000;
-    const TARIF_PER_KM = 3000;
-    const NOMOR_WA = "6281234567890"; // Ganti nomor Anda di sini
-
-    let globalJarak = 0;
-    let globalHarga = 0;
-
-    async function getCoords(query) {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
-        const data = await res.json();
-        return data.length > 0 ? { lat: data[0].lat, lon: data[0].lon, name: data[0].display_name } : null;
-    }
-
-    async function hitungJarak() {
-        const startText = document.getElementById('start').value;
-        const endText = document.getElementById('end').value;
-        const status = document.getElementById('status');
-
-        if(!startText || !endText) return alert("Isi semua titik!");
-        status.innerText = "Mencari rute...";
-
-        const startCoord = await getCoords(startText);
-        const endCoord = await getCoords(endText);
-
-        if(startCoord && endCoord) {
-            // Menggunakan API OSRM (Gratis untuk hitung jarak jalan raya)
-            const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${startCoord.lon},${startCoord.lat};${endCoord.lon},${endCoord.lat}?overview=false`);
-            const routeData = await routeRes.json();
-            
-            if(routeData.routes.length > 0) {
-                globalJarak = (routeData.routes[0].distance / 1000).toFixed(1);
-                globalHarga = Math.ceil((TARIF_DASAR + (globalJarak * TARIF_PER_KM)) / 100) * 100;
-
-                document.getElementById('displayJarak').innerText = "Jarak: " + globalJarak + " km";
-                document.getElementById('displayHarga').innerText = "Rp " + globalHarga.toLocaleString('id-ID');
-                document.getElementById('btnWa').style.display = "block";
-                status.innerText = "Selesai!";
-            }
-        } else {
-            alert("Lokasi tidak ditemukan!");
-            status.innerText = "";
-        }
-    }
-
-    function kirimWa() {
-        const text = `Halo, saya mau pesan ojek.%0A📍 Dari: ${document.getElementById('start').value}%0A🏁 Ke: ${document.getElementById('end').value}%0A🛣️ Jarak: ${globalJarak} km%0A💰 Harga: Rp ${globalHarga.toLocaleString('id-ID')}`;
-        window.open(`https://wa.me/${NOMOR_WA}?text=${text}`);
-    }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ojek Online Mandiri</title>
-    <style>
-        /* Styling agar tampilan persis seperti aplikasi HP (Mobile First) */
+        /* CSS: Tampilan Bersih ala Maxim */
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #e9ecef; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #f2f2f2; 
             margin: 0; 
-            padding: 0; 
             display: flex; 
             justify-content: center; 
         }
         .app-container { 
             background-color: #ffffff; 
             width: 100%; 
-            max-width: 420px; 
+            max-width: 450px; 
             min-height: 100vh; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.1); 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
             display: flex; 
             flex-direction: column; 
-            position: relative;
         }
         .header { 
-            background-color: #ffcc00; /* Warna kuning ala Maxim */
-            padding: 20px; 
+            background-color: #ffcc00; 
+            padding: 25px 20px; 
             text-align: center; 
             font-weight: 900; 
-            font-size: 22px; 
-            color: #111; 
+            font-size: 24px; 
             letter-spacing: 1px;
+            color: #111;
         }
-        .form-section {
-            padding: 20px;
-        }
-        .input-group { 
-            margin-bottom: 20px; 
-            position: relative;
-        }
+        .form-section { padding: 25px; flex-grow: 1; }
+        .input-group { margin-bottom: 20px; }
         .input-group label { 
-            font-size: 13px; 
-            color: #555; 
-            font-weight: bold;
-            margin-bottom: 8px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: #444; 
             display: block; 
+            margin-bottom: 8px; 
         }
         .input-group input { 
             width: 100%; 
-            box-sizing: border-box;
+            padding: 14px; 
             border: 1px solid #ddd; 
-            border-radius: 8px;
+            border-radius: 10px; 
             font-size: 16px; 
-            padding: 12px; 
-            outline: none; 
-            transition: 0.3s;
+            box-sizing: border-box; 
+            outline: none;
+            background-color: #f9f9f9;
         }
-        .input-group input:focus {
-            border-color: #ffcc00;
-        }
-        /* Kotak Hasil Harga */
-        .price-container { 
-            padding: 25px 20px; 
-            background-color: #fafafa; 
-            text-align: center; 
-            border-top: 1px solid #eee;
-            margin-top: auto;
-        }
-        .price-label { font-size: 14px; color: #777; margin: 0; }
-        .price-value { font-size: 32px; font-weight: 900; color: #111; margin: 5px 0 15px 0; }
+        .input-group input:focus { border-color: #ffcc00; background-color: #fff; }
         
-        /* Tombol Aksi */
-        .btn { 
-            border: none; 
-            padding: 15px; 
+        #status { 
+            font-size: 13px; 
+            color: #888; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            min-height: 20px;
+        }
+
+        .btn-hitung { 
+            background-color: #111; 
+            color: #ffcc00; 
             width: 100%; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 10px; 
             font-size: 16px; 
             font-weight: bold; 
-            border-radius: 8px; 
             cursor: pointer; 
             transition: 0.2s;
         }
-        .btn-calc { 
-            background-color: #111; 
-            color: #ffcc00; 
-            margin-bottom: 20px;
+        .btn-hitung:active { transform: scale(0.98); }
+
+        /* Area Hasil Harga */
+        .price-container { 
+            background-color: #fafafa; 
+            padding: 30px 20px; 
+            text-align: center; 
+            border-top: 1px solid #eee; 
         }
-        .btn-calc:active { background-color: #333; }
+        .price-label { font-size: 14px; color: #888; margin: 0; }
+        .price-value { font-size: 36px; font-weight: 900; color: #111; margin: 5px 0 20px 0; }
+        .km-label { font-size: 16px; color: #444; font-weight: bold; margin-bottom: 15px; }
+
         .btn-wa { 
             background-color: #25D366; 
             color: white; 
-            display: none; /* Disembunyikan sebelum jarak dihitung */
+            width: 100%; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            display: none; /* Muncul hanya setelah hitung */
+            text-decoration: none;
+            display: none; 
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -194,79 +110,105 @@
         
         <div class="form-section">
             <div class="input-group">
-                <label>Titik Jemput</label>
-                <input type="text" id="jemput" placeholder="Cth: Homestay / Terminal..." required>
+                <label>📍 Titik Jemput</label>
+                <input type="text" id="start" placeholder="Cth: Homestay Dieng / Terminal">
             </div>
             
             <div class="input-group">
-                <label>Titik Tujuan</label>
-                <input type="text" id="tujuan" placeholder="Cth: Kawah Sikidang / Candi Arjuna..." required>
+                <label>🏁 Titik Tujuan</label>
+                <input type="text" id="end" placeholder="Cth: Kawah Sikidang / Candi Arjuna">
             </div>
 
-            <div class="input-group">
-                <label>Estimasi Jarak (Kilometer)</label>
-                <input type="number" id="jarak" placeholder="Masukkan angka jarak, cth: 5" required>
-            </div>
+            <div id="status"></div>
 
-            <button class="btn btn-calc" onclick="hitungTarif()">HITUNG TARIF</button>
+            <button class="btn-hitung" onclick="hitungOtomatis()">CEK HARGA SEKARANG</button>
         </div>
 
         <div class="price-container">
-            <p class="price-label">Estimasi Biaya Perjalanan</p>
-            <div class="price-value" id="tampilHarga">Rp 0</div>
+            <div id="displayJarak" class="km-label">Jarak: 0 km</div>
+            <p class="price-label">Estimasi Biaya</p>
+            <div class="price-value" id="displayHarga">Rp 0</div>
             
-            <button class="btn btn-wa" id="tombolWa" onclick="pesanWhatsApp()">PESAN SEKARANG VIA WA</button>
+            <button id="btnWa" class="btn-wa" onclick="kirimWhatsApp()">PESAN VIA WHATSAPP</button>
         </div>
     </div>
 
     <script>
-        // --- PENGATURAN TARIF ---
-        const TARIF_DASAR = 5000;    // Biaya buka pintu / awal
-        const TARIF_PER_KM = 3000;   // Biaya per kilometer
-        const NOMOR_WA = "628895911511"; // GANTI DENGAN NOMOR WA ANDA (Gunakan 62, tanpa angka 0 di depan)
+        // --- KONFIGURASI ---
+        const TARIF_DASAR = 5000;    // Biaya awal
+        const TARIF_PER_KM = 3000;   // Biaya per km
+        const NOMOR_WA = "6281234567890"; // GANTI DENGAN NOMOR ANDA (Awali 62)
 
-        let totalHargaFinal = 0;
+        let globalJarak = 0;
+        let globalHarga = 0;
 
-        // Fungsi Menghitung Tarif
-        function hitungTarif() {
-            const jemput = document.getElementById("jemput").value;
-            const tujuan = document.getElementById("tujuan").value;
-            const jarak = parseFloat(document.getElementById("jarak").value);
+        // Mencari koordinat lokasi
+        async function getCoords(query) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                return data.length > 0 ? { lat: data[0].lat, lon: data[0].lon } : null;
+            } catch (err) {
+                return null;
+            }
+        }
 
-            if (!jemput || !tujuan || !jarak) {
-                alert("Mohon lengkapi titik jemput, tujuan, dan jarak terlebih dahulu!");
+        // Hitung Jarak & Harga Otomatis
+        async function hitungOtomatis() {
+            const startText = document.getElementById('start').value;
+            const endText = document.getElementById('end').value;
+            const status = document.getElementById('status');
+            const btnWa = document.getElementById('btnWa');
+
+            if (!startText || !endText) {
+                alert("Harap isi lokasi jemput dan tujuan!");
                 return;
             }
 
-            // Rumus perhitungan
-            totalHargaFinal = TARIF_DASAR + (jarak * TARIF_PER_KM);
+            status.innerText = "⏳ Sedang mencari rute terbaik...";
+            btnWa.style.display = "none";
 
-            // Format angka ke Rupiah
-            const formatRupiah = new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(totalHargaFinal);
+            const startCoord = await getCoords(startText);
+            const endCoord = await getCoords(endText);
 
-            // Tampilkan ke layar
-            document.getElementById("tampilHarga").innerText = formatRupiah;
-            
-            // Munculkan tombol WhatsApp
-            document.getElementById("tombolWa").style.display = "block";
+            if (startCoord && endCoord) {
+                // Ambil rute jalan raya via OSRM
+                try {
+                    const routeRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${startCoord.lon},${startCoord.lat};${endCoord.lon},${endCoord.lat}?overview=false`);
+                    const routeData = await routeRes.json();
+                    
+                    if (routeData.routes && routeData.routes.length > 0) {
+                        globalJarak = (routeData.routes[0].distance / 1000).toFixed(1);
+                        
+                        // Rumus Harga
+                        globalHarga = TARIF_DASAR + (globalJarak * TARIF_PER_KM);
+                        // Pembulatan ke atas ke ratusan terdekat
+                        globalHarga = Math.ceil(globalHarga / 100) * 100;
+
+                        // Tampilkan Hasil
+                        document.getElementById('displayJarak').innerText = "Jarak: " + globalJarak + " km";
+                        document.getElementById('displayHarga').innerText = "Rp " + globalHarga.toLocaleString('id-ID');
+                        
+                        btnWa.style.display = "flex";
+                        status.innerText = "✅ Rute ditemukan!";
+                    } else {
+                        status.innerText = "❌ Rute jalan tidak ditemukan.";
+                    }
+                } catch (e) {
+                    status.innerText = "❌ Error menghubungi server rute.";
+                }
+            } else {
+                status.innerText = "❌ Lokasi tidak dikenali. Coba ketik lebih spesifik.";
+            }
         }
 
-        // Fungsi Mengirim Pesan ke WhatsApp
-        function pesanWhatsApp() {
-            const jemput = document.getElementById("jemput").value;
-            const tujuan = document.getElementById("tujuan").value;
-            const jarak = document.getElementById("jarak").value;
-
-            // Format teks yang akan masuk ke WA Anda
-            const pesan = `Halo, saya ingin pesan Ojek Mandiri.%0A%0A📍 *Titik Jemput:* ${jemput}%0A🏁 *Titik Tujuan:* ${tujuan}%0A🛣️ *Estimasi Jarak:* ${jarak} km%0A💰 *Total Harga:* Rp ${totalHargaFinal.toLocaleString('id-ID')}%0A%0AApakah bisa jemput sekarang?`;
-
-            // Buka link WhatsApp
-            const linkWa = `https://wa.me/${NOMOR_WA}?text=${pesan}`;
-            window.open(linkWa, "_blank");
+        function kirimWhatsApp() {
+            const jemput = document.getElementById('start').value;
+            const tujuan = document.getElementById('end').value;
+            
+            const pesan = `Halo, saya ingin pesan ojek.%0A%0A📍 *Jemput:* ${jemput}%0A🏁 *Tujuan:* ${tujuan}%0A🛣️ *Jarak:* ${globalJarak} km%0A💰 *Total Harga:* Rp ${globalHarga.toLocaleString('id-ID')}%0A%0AApakah tersedia?`;
+            
+            window.open(`https://wa.me/${NOMOR_WA}?text=${pesan}`, "_blank");
         }
     </script>
 </body>
